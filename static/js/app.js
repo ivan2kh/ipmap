@@ -11,7 +11,7 @@ function startClustering(map, data) {
   // First we need to create an array of DataPoint objects,
   // for the ClusterProvider
   var dataPoints = data.map(function (item) {
-    return new H.clustering.DataPoint(item.latitude, item.longitude);
+    return new H.clustering.DataPoint(item.lat, item.lon, item.w);
   });
 
   // Create a clustering provider with custom options for clusterizing the input

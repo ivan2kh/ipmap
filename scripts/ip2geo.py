@@ -28,11 +28,17 @@ with open('good.csv') as csvfile:
     for row in spamreader:
         ips = row[3].split(',')
         for ip in ips:
-            allips.append({'date':row[0], 'url': row[1], 'host':row[2], 'ip': ip})
+            ipsplit = ip.split('/')
+            w = 1
+            if len(ipsplit) == 2:
+                sig_bits = 32 - int(ipsplit[1])
+                w = 2 ** sig_bits
+                ip = ipsplit[0]
+            allips.append({'date':row[0], 'url': row[1], 'host':row[2], 'ip': ip, 'w': w})
 
 
-with open('out.csv', 'w') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=['lat', 'lon', 'ip', 'host', 'date', 'url'])
+with open('points.csv', 'w') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=['lat', 'lon', 'ip', 'host', 'date', 'url', 'w'])
 
     count = 0
     for i in range(0, len(allips), 100):
@@ -44,12 +50,12 @@ with open('out.csv', 'w') as csvfile:
         for index, g in enumerate(geo):
             if not 'lat' in g:
                 continue
-            rec = {'lat': g['lat'], 'lon': g['lon'], 'ip': els[index]['ip'], 'host': els[index]['host'],
-                   'date': els[index]['date'], 'url': els[index]['url']}
-            writer.writerow(rec)
-    count += 1
-    if count % 150 == 0:
-        sleep(60)
+            els[index].update({'lat': g['lat'], 'lon': g['lon']})
+            writer.writerow(els[index])
+
+        count += 1
+        if count % 150 == 0:
+            sleep(60)
 sys.exit()
 
 
